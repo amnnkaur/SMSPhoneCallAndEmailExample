@@ -15,6 +15,31 @@ class EmailViewController: UIViewController, MFMailComposeViewControllerDelegate
     @IBOutlet var body: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
+       
+        let contactStore = CNContactStore()
+        var contacts = [CNContact]()
+        let keys = [CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
+            CNContactPhoneNumbersKey,
+            CNContactEmailAddressesKey] as [Any]
+         let request = CNContactFetchRequest(keysToFetch: keys as! [CNKeyDescriptor])
+        do {
+         try contactStore.enumerateContacts(with: request){
+          (contact, stop) in
+       
+        contacts.append(contact)
+            
+        for phoneNumber in contact.phoneNumbers {
+          if let number = phoneNumber.value as? CNPhoneNumber, let label = phoneNumber.label {
+                let localizedLabel = CNLabeledValue<CNPhoneNumber>.localizedString(forLabel: label)
+            print("\(contact.givenName) \(contact.familyName) tel:\(localizedLabel) -- \(number.stringValue), email: \(contact.emailAddresses)")
+          }
+        }
+      }
+      print(contacts)
+    } catch {
+      print("unable to fetch contacts")
+    }  }
+   
     }
 
     override func didReceiveMemoryWarning() {
